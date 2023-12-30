@@ -16,8 +16,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static IMobi.School.BAL.v1.AccountProcess;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using IMobi.School.DomainModal.EnumDM;
 using IMobi.School.ServiceModal.EnumSM;
 using Microsoft.IdentityModel.Tokens;
@@ -30,12 +28,12 @@ namespace IMobi.School.BAL.v1
     {
         private UserManager<ApplicationUserDM> _userManager;
         //private readonly SignInManager<ApplicationUserDM> _signInManager;
-        private readonly RoleManager<RoleTypeDM> _roleManager;
+        private readonly RoleManager<DomainModal.v1.AppUser.RoleTypeDM> _roleManager;
         private IConfiguration _config;
         public AccountProcess(AppDbContext appDbContext, IMapper mapper,
             UserManager<ApplicationUserDM> userManager, 
             //SignInManager<ApplicationUserDM> signInManager, 
-            RoleManager<RoleTypeDM> roleManager,
+            RoleManager<DomainModal.v1.AppUser.RoleTypeDM> roleManager,
              IConfiguration config) : base(appDbContext, mapper)
         {
             _userManager = userManager;
@@ -49,16 +47,16 @@ namespace IMobi.School.BAL.v1
             ApplicationUserDM applicationUserDM = new ApplicationUserDM();
             applicationUserDM.Id = Guid.NewGuid().ToString();//appuser id
             applicationUserDM.UserName = loginUser.UserName;
-            applicationUserDM.FullName = loginUser.FullName;
+          /*  applicationUserDM.FullName = loginUser.FullName;
             applicationUserDM.PhoneNumber = loginUser.PhoneNumber;
             applicationUserDM.Email = loginUser.Email;
             applicationUserDM.FirstName = loginUser.FirstName;
             applicationUserDM.MiddleName = loginUser.MiddleName;
-            applicationUserDM.LastName = loginUser.LastName;
+            applicationUserDM.LastName = loginUser.LastName;*/
             var hashPw = _userManager.PasswordHasher.HashPassword(applicationUserDM, loginUser.Password);
             //applicationUserDM.PasswordHash = hashPw;
-            RoleTypeDM roleTypeDM = new RoleTypeDM();
-            roleTypeDM.RoleType = loginUser.RoleType;
+            DomainModal.v1.AppUser.RoleTypeDM roleTypeDM = new DomainModal.v1.AppUser.RoleTypeDM();
+            //roleTypeDM.RoleType = loginUser.RoleType;
             roleTypeDM.Name = loginUser.RoleType.ToString();
             roleTypeDM.NormalizedName = loginUser.RoleType.ToString();
 
@@ -78,27 +76,27 @@ namespace IMobi.School.BAL.v1
                     var roleExistsInDb = await _roleManager.RoleExistsAsync(loginUser.RoleType.ToString());
                     if (!roleExistsInDb)
                     {
-                        var identityRoleRes = await _roleManager.CreateAsync(roleTypeDM);
-                        if (identityRoleRes.Succeeded)
+                        //var identityRoleRes = await _roleManager.CreateAsync(roleTypeDM);
+                        //if (identityRoleRes.Succeeded)
                         {
                             _appDbContext.Roles.Add(roleTypeDM);
-                            _appDbContext.ApplicationUsers.Add(applicationUserDM);
+                            //_appDbContext.ApplicationUsers.Add(applicationUserDM);
                             await _appDbContext.SaveChangesAsync();
                             return new ApiResponeSM<IdentityResult, ApplicationUserDM>()
                             {
-                                IdenityResult = identityRoleRes,
-                                SuccessData = await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName == loginUser.UserName)
+                                //IdenityResult = identityRoleRes,
+                                //SuccessData = await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName == loginUser.UserName)
                             };
                         }
                     }
 
                     ClientUserDM clientUserDM = new ClientUserDM()
                     {
-                        FirstName = loginUser.FirstName,
+                      /*  FirstName = loginUser.FirstName,
                         LastName = loginUser.LastName,
                         Username = loginUser.UserName,
                         Password = hashPw,
-                        RoleTypeDM = loginUser.RoleType
+                        RoleTypeDM = loginUser.RoleType*/
                     };
                     _appDbContext.ClientUsers.Add(clientUserDM);
                     await _appDbContext.SaveChangesAsync();
@@ -106,7 +104,7 @@ namespace IMobi.School.BAL.v1
                     return new ApiResponeSM<IdentityResult, ApplicationUserDM>()
                     {
                         IdenityResult = null,
-                        SuccessData = await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName == loginUser.UserName),
+                        //SuccessData = await _appDbContext.ApplicationUsers.FirstOrDefaultAsync(x => x.UserName == loginUser.UserName),
                         Message = "Success"
                     };
                 }
