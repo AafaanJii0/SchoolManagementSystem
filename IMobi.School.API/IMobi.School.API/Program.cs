@@ -44,7 +44,8 @@ void RegisterThirdPartyServices(WebApplicationBuilder builder)
                         .AddEntityFrameworkStores<AppDbContext>();
 
         #region Jwt configuration
-        builder.Services.AddAuthentication(options => {
+        builder.Services.AddAuthentication(options =>
+        {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -99,7 +100,7 @@ void RegisterThirdPartyServices(WebApplicationBuilder builder)
     }
     #endregion Register Swagger
 
-        #region Register CORS
+    #region Register CORS
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAllPolicy",
